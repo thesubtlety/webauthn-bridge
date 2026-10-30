@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "WebAuthn Relay (local)",
+  "description": "Forward local browser WebAuthn sign-in requests to a paired remote Chrome extension over encrypted WSS.",
+  "version": "1.0.0",
+  "minimum_chrome_version": "129",
+  "permissions": [
+    "webAuthenticationProxy",
+    "storage",
+    "tabs",
+    "alarms",
+    "scripting"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/yellow-16.png",
+      "32": "icons/yellow-32.png",
+      "48": "icons/yellow-48.png"
+    },
+    "default_title": "WebAuthn Relay: checking relay health and encrypted peer link"
+  },
+  "optional_host_permissions": [
+    "https://*/*"
+  ]
+}

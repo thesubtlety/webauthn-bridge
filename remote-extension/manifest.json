@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "WebAuthn Relay (remote)",
+  "description": "Use a YubiKey on this computer to sign in to a paired local browser over an encrypted relay.",
+  "version": "1.0.0",
+  "minimum_chrome_version": "129",
+  "permissions": [
+    "storage",
+    "scripting",
+    "tabs",
+    "windows",
+    "alarms"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/yellow-16.png",
+      "32": "icons/yellow-32.png",
+      "48": "icons/yellow-48.png"
+    },
+    "default_title": "WebAuthn Relay: checking relay health and encrypted peer link"
+  },
+  "host_permissions": [
+    "https://*/*"
+  ]
+}

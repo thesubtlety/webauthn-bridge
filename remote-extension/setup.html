@@ -1,0 +1,26 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="ui.css"><title>Remote YubiKey bridge</title><style>body.setup{max-width:690px;margin:0 auto;padding:24px}body.setup .status-grid{grid-template-columns:repeat(3,minmax(0,1fr))}</style></head>
+<body class="setup">
+<div class="header"><div><h1>🔑 Remote YubiKey bridge</h1><div class="muted small">Browser-only · multi-IdP · v1.0.0</div></div><div class="row"><button id="setup">Setup in a tab</button><button id="diagnostics">Inspect</button></div></div>
+<div class="panel"><div class="status-grid">
+<div class="metric"><small>Remote client</small><strong id="enabled">Checking</strong></div>
+<div class="metric"><small>Relay</small><strong id="relayStatus">Checking</strong></div>
+<div class="metric"><small>Local browser</small><strong id="peer">Checking</strong></div>
+<div class="metric"><small>Saved profiles</small><strong id="profileCount">0</strong></div>
+<div class="metric"><small>Queued login requests</small><strong id="queued">0</strong></div>
+</div><div class="small muted" style="margin-top:8px">Health: <strong id="health">Checking</strong> · Indicator: <strong id="indicator">...</strong></div><div id="lastError" class="err small" style="margin-top:8px"></div></div>
+<div class="panel"><div class="header"><h2>Identity-provider profiles</h2></div>
+<p class="muted small">Profiles map exact RPs to authorized HTTPS signing origins. Automatic mode selects the sole or preferred matching rule; manual mode remains available.</p>
+<div id="profileSummary" class="small muted">Profiles are managed in the local bridge.</div></div>
+<div class="panel"><label class="checkline" style="margin:0"><input id="streamlined" type="checkbox" checked>
+<strong>Automatic sign-in for saved RPs</strong></label>
+<p class="muted small">No separate approval popup, redirect checkbox, or injected “Use authenticator” button. A saved, unambiguous RP rule opens the remote IdP tab and asks Chrome for Touch ID / security-key consent. Unknown RPs and ambiguous profiles never auto-sign; choose Manual next login from the local extension if needed.</p></div>
+<div class="panel"><h2>Connection and pairing</h2>
+<label for="relay">WebSocket relay URL</label><input id="relay" type="url" placeholder="wss://your-worker.workers.dev/" autocomplete="off">
+<label for="secret">Pairing secret (paste from local bridge)</label><input id="secret" type="password" autocomplete="off" placeholder="Paste the secret generated on local">
+
+<div class="row"><button id="connect" class="primary">Connect</button><button id="disconnect">Disconnect</button></div>
+<p class="muted small">HTTPS site access is required at install for current and future profiles.</p>
+<div id="notice" class="notice muted"></div><p class="muted small">Connection settings are remembered even if a Chrome permission prompt closes this popup. For first-time setup, use the full <b>Setup in a tab</b> page. The relay host permission permits <code>/health</code>. Green also requires an encrypted peer ping.</p></div>
+<details class="panel"><summary><strong>Recent events (advanced)</strong></summary><div id="events" class="small muted">No events yet.</div><button id="more" class="btn-link">Detailed diagnostics →</button></details>
+<div class="muted small">A valid relay connection does not mean a WebAuthn login will succeed. The local origin is not authenticated by Chrome's proxy; verify the VM sign-in yourself before approving.</div>
+<script src="popup.js"></script></body></html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="ui.css"><title>Local WebAuthn bridge</title><style>body.setup{max-width:690px;margin:0 auto;padding:24px}body.setup .status-grid{grid-template-columns:repeat(3,minmax(0,1fr))}</style></head>
+<body class="setup">
+<div class="header"><div><h1>🖥️ Local WebAuthn bridge</h1><div class="muted small">Local Chrome · proxy · v1.0.0</div></div><div class="row"><button id="setup">Setup in a tab</button><button id="diagnostics">Inspect</button></div></div>
+<div class="panel"><div class="status-grid">
+<div class="metric"><small>Local proxy</small><strong id="enabled">Checking</strong></div>
+<div class="metric"><small>Relay</small><strong id="relayStatus">Checking</strong></div>
+<div class="metric"><small>Remote client</small><strong id="peer">Checking</strong></div>
+<div class="metric"><small>Pending login</small><strong id="pending">0</strong></div>
+</div><div class="small muted" style="margin-top:8px">Health: <strong id="health">Checking</strong> · Indicator: <strong id="indicator">...</strong></div><div id="lastError" class="err small" style="margin-top:8px"></div></div>
+<div class="panel"><h2>Connection and pairing</h2>
+<label for="relay">WebSocket relay origin</label><input id="relay" type="url" placeholder="wss://your-worker.workers.dev/" autocomplete="off">
+<label for="secret">Pairing secret (generate here, copy to remote)</label><input id="secret" type="password" autocomplete="off">
+<div class="row"><button id="generate">Generate pairing secret</button><button id="copy">Copy secret</button></div><div class="row"><button id="connect" class="primary">Enable local proxy</button><button id="disconnect">Disable proxy</button></div><div class="row"><button id="grantAll" type="button">Allow all HTTPS hosts once (optional)</button></div>
+<div class="small muted">Optional broad HTTPS access avoids repeated permission confirmations for new providers and relay hosts. It grants this extension access to HTTPS sites; use only on a trusted browser and you can revoke it in Chrome extension permissions.</div>
+<div id="notice" class="notice muted"></div><p class="muted small">Connection settings are remembered even if a Chrome permission prompt closes this popup. For first-time setup, use the full <b>Setup in a tab</b> page. The relay host permission permits <code>/health</code>. Green also requires an encrypted peer ping.</p>
+</div>
+
+<div class="panel"><h2>Local authenticator preference</h2>
+<label for="authenticator">Next local WebAuthn request</label>
+<select id="authenticator" style="width:100%">
+<option value="default">Browser / website default</option>
+<option value="security-key">USB security key / YubiKey</option>
+<option value="client-device">Remote device / Keychain / Touch ID</option>
+<option value="hybrid">Phone or tablet</option></select>
+<p class="muted small">This is a WebAuthn UI hint, not a forced device selection. Chrome still enforces the site's credential restrictions.</p>
+<label class="checkline"><input id="backgroundSigning" type="checkbox">Open signing page in background (experimental)</label><p class="muted small">Uses a small unfocused temporary window on remote for automatic sign-in. Chrome may still show or focus its WebAuthn prompt. Turn this off if the browser requires focus. Manual approval uses a visible tab.</p><div class="row"><button id="manualNext">Choose profile manually next time</button><button id="nativeVm">Use local native WebAuthn</button></div>
+<p class="muted small">Native mode detaches the proxy; retry the website's sign-in after switching. Already-intercepted requests cannot be handed back seamlessly.</p>
+</div>
+<div class="panel"><h2>Saved remote profiles (encrypted sync)</h2>
+<label for="profileChoice">RP → approved remote signing origin</label>
+<select id="profileChoice" style="width:100%"><option value="">Waiting for remote extension…</option></select>
+<div class="row"><button id="chooseProfile">Use this rule for its RP</button><button id="clearProfile">Clear override for selected RP</button></div>
+<p id="profileSync" class="muted small">Only profiles with remote Quick-start consent can be preselected. Choosing a profile here cannot change its saved RP or signed origin.</p>
+</div>
+<div class="panel"><button id="clearRetry" type="button">Clear per-site retry guard</button><p class="muted small">If a site repeatedly challenges after successful handoff, the bridge pauses after 5 requests in 90 seconds.</p></div>
+<details class="panel"><summary><strong>Recent events (advanced)</strong></summary><div id="events" class="small muted">No events yet.</div><button id="more" class="btn-link">Open detailed inspection →</button></details>
+<div class="warn small"><strong>Important:</strong> While the proxy is enabled, this browser's normal WebAuthn processing is suspended. Disable it after signing in. The proxy does not report the invoking page origin.</div>
+<div class="panel"><button id="profiles">Manage profiles</button><p class="muted small">Configure target sign-in URLs and run local preflight over the encrypted link. Grant target site access in the remote extension.</p></div><script src="crypto.js"></script><script src="popup.js"></script></body></html>

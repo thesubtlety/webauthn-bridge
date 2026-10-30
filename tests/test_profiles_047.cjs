@@ -1,0 +1,12 @@
+const fs = require('node:fs'), path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
+const root=path.resolve(__dirname,'..');
+const src=fs.readFileSync(path.join(root,'remote-extension/profiles.js'),'utf8');
+const env={URL,crypto:{randomUUID:()=> '11111111-1111-4111-8111-111111111111'}};
+vm.createContext(env);vm.runInContext(src,env);
+const direct=env.BridgeProfiles.normalize({name:'GitLab',group:'GitLab',rpId:'gitlab.com',origin:'https://gitlab.com',pageUrl:'https://gitlab.com/users/sign_in'});
+const related=env.BridgeProfiles.normalize({name:'Microsoft Online',group:'Microsoft 365',rpId:'login.microsoft.com',origin:'https://login.microsoftonline.com',pageUrl:'https://login.microsoftonline.com/',allowRelatedOrigins:true});
+assert.equal(env.BridgeProfiles.relation(direct,'gitlab.com'),'direct');
+assert.equal(env.BridgeProfiles.relation(related,'login.microsoft.com'),'related');
+assert.equal(env.BridgeProfiles.relation(related,'gitlab.com'),'none');
+assert.throws(()=>env.BridgeProfiles.normalize({...related,allowRelatedOrigins:false}),/related-origin check explicitly/);
+console.log('v0.4.7 existing direct/related profiles and RP boundaries retained');

@@ -1,0 +1,44 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="ui.css"><title>YubiKey bridge · Diagnostics</title><style>
+body{max-width:1040px;margin:0 auto;padding:20px 22px 55px}h1{font-size:23px}.status-grid{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}.tools{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.logrow{display:grid;grid-template-columns:160px 70px 220px 1fr;gap:9px;align-items:baseline;padding:8px;border-bottom:1px solid #dde5ec;overflow-wrap:anywhere;font-size:12px}.logrow .detail{overflow-wrap:anywhere}.logrow[data-level=error]{background:rgba(178,62,62,.08)}.logrow[data-level=warn]{background:rgba(205,145,48,.08)}.logs{max-height:540px;overflow:auto}.loghead{font-weight:700;background:#eff4f7;position:sticky;top:0}.pre{white-space:pre-wrap;word-break:break-word;font:12px ui-monospace,monospace}.footer{padding:18px 0;color:#6f8090}
+@media(max-width:750px){.logrow{grid-template-columns:1fr 1fr}.logrow .detail{grid-column:1/-1}}
+@media(prefers-color-scheme:dark){.loghead{background:#243b4e}.logrow{border-color:#344b5b}}
+</style></head><body>
+<div class="header"><div><h1>🔎 Bridge inspection</h1><p class="muted" style="margin:0">Transport status, encrypted ping, profile-aware origin preflight, active-tab observations, request correlation, and redacted logs.</p></div><div class="pill" id="version">v0.4.4</div></div>
+<div class="panel"><h2>Current state</h2><div class="status-grid">
+<div class="metric"><small>Extension</small><strong id="role">...</strong></div>
+<div class="metric"><small>Proxy / client</small><strong id="enabled">...</strong></div>
+<div class="metric"><small>Transport</small><strong id="connection">...</strong></div>
+<div class="metric"><small>Peer</small><strong id="peer">...</strong></div>
+<div class="metric"><small>Relay host</small><strong id="relayHost" class="mono">...</strong></div>
+<div class="metric"><small>Pending login requests</small><strong id="pending">0</strong></div>
+<div class="metric"><small>HTTP relay /health</small><strong id="healthState">Checking</strong></div>
+<div class="metric"><small>Encrypted tunnel</small><strong id="tunnel">Checking</strong></div>
+<div class="metric"><small>Toolbar indicator</small><strong id="indicatorStatus">...</strong></div>
+<div class="metric"><small>Remote FIFO queue</small><strong id="queueDepth">0</strong></div>
+</div><div id="lastError" class="err" style="margin-top:9px"></div>
+<div class="row"><a id="health" target="_blank" rel="noreferrer" href="#" class="muted">Open relay /health endpoint ↗</a></div>
+<div id="pendingInfo" class="inspect">No pending requests.</div>
+</div>
+<div class="panel"><h2>Tools</h2>
+<div id="profilesPanel" style="margin:7px 0 12px"><label for="profileSelect">Remote IdP profile to test</label><select id="profileSelect" style="max-width:100%;min-width:280px;margin:6px;padding:9px;border-radius:7px"></select> <button id="rorCheck">Check related-origin authorization</button></div>
+<div class="tools"><button id="linkTest" class="primary">Test encrypted peer round-trip</button><button id="refresh">Refresh now</button><button id="copySummary" class="primary">Copy shareable troubleshooting report</button><button id="copy">Copy full diagnostics (JSON)</button><button id="clear" class="danger">Clear event history</button></div>
+<div class="muted small">The peer test sends only an encrypted ping. Run profile Preflight from the local bridge to check the local sign-in page. The encrypted peer test does not ask your YubiKey to sign.</div>
+<div class="inspect" id="selectedProfileInfo">Selected profile not loaded.</div><div class="inspect" id="testResult">No test run in this tab yet.</div>
+</div>
+<details class="panel" id="remoteWebAuthnTools" hidden><summary><strong>Advanced: WebAuthn tracer and platform capability</strong></summary>
+<h2>Remote WebAuthn diagnostics</h2>
+<div class="row"><button id="probePlatform" class="primary">Measure remote Touch ID / platform support</button>
+<span id="platformState" class="muted">Not measured yet</span></div>
+<p class="muted small">This calls Chrome's availability API in a temporary background tab. It does not sign in or ask for a key touch. A true result means a platform authenticator is available, not that an Okta credential is enrolled.</p>
+<hr style="border:0;border-top:1px solid #cedbe4;margin:14px 0">
+<div class="row"><label for="traceOrigin">Trace this HTTPS origin</label><input id="traceOrigin" type="url" value="https://login.microsoftonline.com" style="min-width:290px;flex:1"></div>
+<div class="tools"><button id="enableTrace">Enable read-only request tracing</button><button id="disableTrace">Disable tracer</button>
+<span class="muted" id="traceStatus">Checking registration…</span></div>
+<p class="muted small">After enabling, <b>reload the remote login tab</b> or open a new one. The bridge logs <code>idp-trace-installed</code> when injected, and identifies <code>source=site</code> versus <code>source=bridge</code>. The trace does not suppress requests. Page events are untrusted diagnostic metadata only; close/reload old tabs after disabling.</p>
+</details>
+<div class="panel"><h2>Failure explanation</h2><div id="analysis" class="inspect">No failures recorded.</div></div>
+<div class="panel"><div class="header"><h2>Authentication timeline (newest first)</h2><span class="muted" id="count">0 events</span></div>
+<div class="row"><label for="verbosity" class="muted" style="margin:0">View</label><select id="verbosity"><option value="key">Key events</option><option value="all">Everything (advanced)</option></select> <label for="filter" class="muted" style="margin:0">Severity</label><select id="filter"><option value="all">All</option><option value="warn">Warnings and errors</option><option value="error">Errors only</option></select> <label for="query" class="muted" style="margin:0">Find RP, stage or fingerprint</label><input id="query" type="text" style="flex:1;min-width:180px;max-width:380px" placeholder="e.g. login.microsoft.com"></div>
+<div class="logs" id="logs" aria-live="polite"></div></div>
+<div class="footer small">Logs include RP, signing origin, transport hints, request IDs and errors. Technical/test-only events are hidden by default; choose Everything to see them. No pairing secret, YubiKey PIN, raw challenge, credential, signature, or encrypted frame is intentionally recorded. Logs may include the login origin, relying-party ID, challenge fingerprint, timestamps and errors. Developer Tools: chrome://extensions → Service worker → Inspect.</div>
+<script src="diagnostics.js"></script></body></html>

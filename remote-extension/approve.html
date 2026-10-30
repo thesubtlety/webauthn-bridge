@@ -1,0 +1,25 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="ui.css"><title>Approve local YubiKey request</title></head>
+<body style="padding:18px;max-width:625px;margin:auto">
+<h1>🔑 Approve local YubiKey login?</h1>
+<p class="muted">Encrypted challenge received from the local browser. Select an explicit identity-provider profile to determine the remote signed origin.</p>
+<div class="panel"><h2>Challenge inspection</h2>
+<div class="metric"><small>Local requested RP ID</small><strong id="rp" class="mono">...</strong></div>
+<div class="metric" style="margin-top:8px"><small>Local's preferred remote authenticator (hint only)</small><strong id="authPreference">default</strong></div>
+<div class="status-grid" style="margin-top:8px"><div class="metric"><small>Challenge fingerprint</small><strong id="fingerprint" class="mono">...</strong></div><div class="metric"><small>User verification</small><strong id="uv">...</strong></div></div>
+<div class="metric" style="margin-top:8px"><small>Local active tab origin — unverified heuristic</small><strong id="observed" class="mono">Unavailable</strong></div>
+<p id="progress" class="muted small">Checking request...</p></div>
+<div class="panel"><h2>Choose an IdP profile</h2>
+<label for="profile">Profiles explicitly matching this RP ID</label><select id="profile" style="width:100%;padding:10px;border-radius:8px;margin:6px 0"></select>
+<p class="muted small" id="matchDetail">Only rules with the exact requested RP ID appear here. A related-origin rule requires an online authorization check.</p>
+<label for="launch">Starting page URL</label><select id="launch" style="width:100%;padding:10px;border-radius:8px;margin:6px 0"></select>
+<p class="muted small">Entry URLs may redirect; WebAuthn still runs only at the rule's authorized signing origin.</p>
+<details style="margin:8px 0"><summary>Show all saved profiles (including RP mismatches)</summary><pre id="inventory" class="inspect" style="white-space:pre-wrap">Loading...</pre></details>
+<div class="row"><span class="muted small">Create or edit profiles in the local bridge.</span><button id="refresh">Refresh profiles</button></div></div>
+<div class="warn"><b>Verify on the local computer:</b> You initiated this exact sign-in and recognize its actual origin. The local extension can observe a foreground tab but <b>cannot prove which webpage or iframe called WebAuthn</b>. Choosing a profile makes the remote browser sign for that profile's origin.</div>
+<div class="panel"><label class="checkline"><input type="checkbox" id="redirect"> Experimental: follow a redirect only to another saved profile for this exact RP ID (one attempt)</label>
+<p class="muted small">This does not disable WebAuthn security. The redirected HTTPS origin must already have a saved profile and host permission, any required RP well-known authorization must pass, and Chrome still enforces the RP ID. Otherwise, the attempt stops before signing.</p>
+<label class="checkline"><input type="checkbox" id="verified" style="margin-top:2px"> I checked the local browser's login page and intended to authenticate this RP ID.</label>
+<div class="row"><button id="approve" class="primary" disabled>Approve & open selected remote page</button><button id="deny" class="danger">Deny</button></div>
+<p class="muted small">Next, click <b>Use remote YubiKey now</b> in the overlay on the remote HTTPS page. This extension never requests your YubiKey PIN.</p></div>
+<div id="notice" class="notice"></div>
+<script src="approve.js"></script></body></html>
